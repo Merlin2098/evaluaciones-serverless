@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Sistema de Evaluación Typeform Serverless
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 10
+    MemorySize: 256
+
+Resources:
+
+  EvaluacionesLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: evaluaciones-dependencies
+      Description: Dependencias Python (reportlab, etc)
+      Content:
+        ZipFile: layer/dependencies.zip
+      CompatibleRuntimes:
+        - python3.11
+
+  EvaluacionesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      CodeUri: lambda/
+
+      Layers:
+        - !Ref EvaluacionesLayer
+
+      Environment:
+        Variables:
+          BUCKET_NAME: evaluaciones-demo-bucket
+          CLIENTE_EMAIL: rfuculmana@gmail.com
+          FROM_EMAIL: rfuculmana@gmail.com
+          SES_REGION: us-east-1
+          SES_CONFIG_SET: email-debug
+
+      Policies:
+        - AmazonS3FullAccess
+        - AmazonSESFullAccess
+        - CloudWatchLogsFullAccess
+
+      Events:
+        ApiEvaluacion:
+          Type: Api
+          Properties:
+            Path: /evaluacion
+            Method: post
