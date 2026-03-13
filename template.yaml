@@ -1,14 +1,39 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Sistema de Evaluación Typeform Serverless
+Description: >
+  Serverless pipeline para procesar evaluaciones desde Typeform.
+  La API Gateway recibe el webhook, la Lambda procesa la evaluación,
+  genera un PDF, guarda resultados en S3 y envía correo mediante SES.
 
 Globals:
   Function:
     Runtime: python3.11
-    Timeout: 10
+    Timeout: 15
     MemorySize: 256
+    Architectures:
+      - x86_64
+
+Parameters:
+
+  BucketName:
+    Type: String
+    Description: Bucket S3 donde se almacenarán los resultados
+
+  ClienteEmail:
+    Type: String
+    Description: Email destinatario del reporte
+
+  FromEmail:
+    Type: String
+    Description: Email remitente verificado en SES
 
 Resources:
+
+  EvaluacionesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Description: API para recibir webhooks de Typeform
 
   EvaluacionesLayer:
     Type: AWS::Lambda::LayerVersion
@@ -16,13 +41,14 @@ Resources:
       LayerName: evaluaciones-dependencies
       Description: Dependencias Python (reportlab, etc)
       Content:
-        ZipFile: layer/dependencies.zip
+        ContentUri: layer/dependencies.zip
       CompatibleRuntimes:
         - python3.11
 
   EvaluacionesFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: evaluaciones-typeform-processor
       Handler: app.lambda_handler
       CodeUri: lambda/
 
@@ -31,20 +57,36 @@ Resources:
 
       Environment:
         Variables:
-          BUCKET_NAME: evaluaciones-demo-bucket
-          CLIENTE_EMAIL: rfuculmana@gmail.com
-          FROM_EMAIL: rfuculmana@gmail.com
+          BUCKET_NAME: !Ref BucketName
+          CLIENTE_EMAIL: !Ref ClienteEmail
+          FROM_EMAIL: !Ref FromEmail
           SES_REGION: us-east-1
           SES_CONFIG_SET: email-debug
 
       Policies:
-        - AmazonS3FullAccess
-        - AmazonSESFullAccess
-        - CloudWatchLogsFullAccess
+        - S3WritePolicy:
+            BucketName: !Ref BucketName
+
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendRawEmail
+              Resource: "*"
 
       Events:
         ApiEvaluacion:
           Type: Api
           Properties:
+            RestApiId: !Ref EvaluacionesApi
             Path: /evaluacion
             Method: post
+
+Outputs:
+
+  ApiEndpoint:
+    Description: Endpoint del webhook de Typeform
+    Value: !Sub "https://${EvaluacionesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/evaluacion"
+
+  LambdaFunctionName:
+    Description: Nombre de la función Lambda
+    Value: !Ref EvaluacionesFunction
