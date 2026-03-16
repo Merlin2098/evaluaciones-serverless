@@ -5,23 +5,23 @@
 ![SAM](https://img.shields.io/badge/AWS%20SAM-Infrastructure%20as%20Code-green)
 ![License](https://img.shields.io/badge/license-Educational-lightgrey)
 
-Sistema **serverless** para procesar evaluaciones enviadas desde
-**Typeform**, generar automáticamente un **reporte PDF**, almacenarlo en
-**Amazon S3** y enviarlo por **correo electrónico usando Amazon SES**.
+**Serverless** system for processing evaluations submitted from
+**Typeform**, automatically generating a **PDF report**, storing it in
+**Amazon S3**, and sending it by **email using Amazon SES**.
 
-Toda la infraestructura se define como **Infrastructure as Code** usando
+All infrastructure is defined as **Infrastructure as Code** using
 **AWS SAM / CloudFormation**.
 
 ------------------------------------------------------------------------
 
 # Features
 
--   Arquitectura serverless
--   Procesamiento automático de evaluaciones
--   Generación automática de PDF
--   Almacenamiento en Amazon S3
--   Envío automático de correos con Amazon SES
--   Infraestructura definida como código (IaC)
+-   Serverless architecture
+-   Automatic evaluation processing
+-   Automatic PDF generation
+-   Storage in Amazon S3
+-   Automatic email sending with Amazon SES
+-   Infrastructure defined as code (IaC)
 
 ------------------------------------------------------------------------
 
@@ -39,17 +39,17 @@ Toda la infraestructura se define como **Infrastructure as Code** usando
 
 # Why this project exists
 
-Este proyecto demuestra cómo construir un **pipeline serverless para
-procesar datos provenientes de webhooks**.
+This project demonstrates how to build a **serverless pipeline for
+processing data from webhooks**.
 
-Objetivos:
+Goals:
 
--   Automatizar evaluaciones enviadas desde formularios
--   Generar reportes PDF automáticamente
--   Almacenar resultados estructurados
--   Enviar reportes automáticamente por correo
+-   Automate evaluations submitted from forms
+-   Automatically generate PDF reports
+-   Store structured results
+-   Send reports automatically by email
 
-Este patrón se utiliza comúnmente en integraciones con:
+This pattern is commonly used in integrations with:
 
 -   Typeform
 -   Stripe
@@ -61,25 +61,20 @@ Este patrón se utiliza comúnmente en integraciones con:
 
 # Architecture
 
-El sistema utiliza una arquitectura serverless simple y escalable.
+The system uses a simple and scalable serverless architecture.
 
 ![Architecture Diagram](./architecture.png)
 
-Flujo:
+Flow:
 
-Typeform Webhook\
-↓\
-API Gateway (POST /evaluacion)\
-↓\
-AWS Lambda (Python)\
-↓\
-Generación de PDF (ReportLab)\
-↓\
-Amazon S3 (almacenamiento de resultados)\
-↓\
-Amazon SES (envío automático de correo)
+Typeform Webhook
+-> API Gateway (POST /evaluation)
+-> AWS Lambda (Python)
+-> PDF Generation (ReportLab)
+-> Amazon S3 (result storage)
+-> Amazon SES (automatic email delivery)
 
-Servicios AWS utilizados:
+AWS services used:
 
 -   AWS Lambda
 -   Amazon API Gateway
@@ -93,46 +88,46 @@ Servicios AWS utilizados:
 
 # Project Structure
 
-    evaluaciones-serverless/
-    │
-    ├── lambda/
-    │   └── app.py
-    │
-    ├── layer/
-    │   └── dependencies.zip
-    │
-    ├── template.yaml
-    │
-    ├── architecture.png
-    │
-    └── README.md
+    evaluations-serverless/
+    |
+    |-- lambda/
+    |   `-- app.py
+    |
+    |-- layer/
+    |   `-- dependencies.zip
+    |
+    |-- template.yaml
+    |
+    |-- architecture.png
+    |
+    `-- README.md
 
   Folder             Description
   ------------------ ----------------------------------------------------
-  lambda             código de la función Lambda
-  layer              dependencias Python empaquetadas como Lambda Layer
-  template.yaml      definición de infraestructura serverless
-  architecture.png   diagrama de arquitectura
-  README.md          documentación del proyecto
+  lambda             Lambda function code
+  layer              Python dependencies packaged as a Lambda Layer
+  template.yaml      serverless infrastructure definition
+  architecture.png   architecture diagram
+  README.md          project documentation
 
 ------------------------------------------------------------------------
 
 # Requirements
 
-Antes de desplegar el sistema necesitas:
+Before deploying the system, you need:
 
--   Cuenta AWS
--   AWS CLI configurado
--   AWS SAM CLI instalado
+-   An AWS account
+-   AWS CLI configured
+-   AWS SAM CLI installed
 -   Python 3.11
--   Bucket S3 existente
--   SES configurado (email o dominio verificado)
+-   An existing S3 bucket
+-   SES configured (verified email or domain)
 
-Instalar SAM CLI:
+Install SAM CLI:
 
     pip install aws-sam-cli
 
-Verificar instalación:
+Verify installation:
 
     sam --version
 
@@ -140,18 +135,18 @@ Verificar instalación:
 
 # Environment Variables
 
-La función Lambda utiliza variables de entorno para evitar **hardcoding
-de infraestructura**.
+The Lambda function uses environment variables to avoid **hardcoding
+infrastructure values**.
 
   Variable         Description
   ---------------- ---------------------------------------
-  BUCKET_NAME      bucket S3 donde se guardan resultados
-  CLIENTE_EMAIL    destinatario del reporte
-  FROM_EMAIL       remitente del correo
-  SES_REGION       región de SES
-  SES_CONFIG_SET   configuration set de SES
+  BUCKET_NAME      S3 bucket where results are stored
+  CLIENTE_EMAIL    report recipient
+  FROM_EMAIL       sender email
+  SES_REGION       SES region
+  SES_CONFIG_SET   SES configuration set
 
-Ejemplo:
+Example:
 
     BUCKET_NAME=evaluaciones-demo-bucket
     CLIENTE_EMAIL=example@email.com
@@ -163,121 +158,121 @@ Ejemplo:
 
 # Quick Start
 
-## 1️⃣ Clonar repositorio
+## 1. Clone the repository
 
     git clone https://github.com/Merlin2098/evaluaciones-serverless
     cd evaluaciones-serverless
 
-## 2️⃣ Construir el proyecto
+## 2. Build the project
 
     sam build
 
-Esto prepara:
+This prepares:
 
--   código Lambda
--   layer
--   template CloudFormation
+-   Lambda code
+-   Layer
+-   CloudFormation template
 
-## 3️⃣ Desplegar infraestructura
+## 3. Deploy the infrastructure
 
     sam deploy --guided
 
-Durante el deploy AWS solicitará:
+During deployment AWS will ask for:
 
--   nombre del stack
--   región
--   bucket para artefactos
--   confirmación de permisos IAM
+-   Stack name
+-   Region
+-   Bucket for artifacts
+-   IAM permission confirmation
 
-SAM creará automáticamente:
+SAM will automatically create:
 
 -   Lambda
 -   API Gateway
--   permisos
--   integración webhook
+-   Permissions
+-   Webhook integration
 
 ------------------------------------------------------------------------
 
-# Configure Typeform Webhook
+# Configure the Typeform Webhook
 
-Después del deploy obtendrás un endpoint similar a:
+After deployment you will get an endpoint similar to:
 
-    https://xxxx.execute-api.us-east-1.amazonaws.com/Prod/evaluacion
+    https://xxxx.execute-api.us-east-1.amazonaws.com/Prod/evaluation
 
-Configura ese endpoint como **webhook en Typeform**.
+Configure that endpoint as a **webhook in Typeform**.
 
-Cada envío del formulario activará la Lambda.
+Each form submission will trigger the Lambda.
 
 ------------------------------------------------------------------------
 
-# Output Generated
+# Generated Output
 
-Cada evaluación produce:
+Each evaluation produces:
 
-1.  JSON con respuestas procesadas\
-2.  PDF con reporte de evaluación
+1.  JSON with processed responses\
+2.  PDF with the evaluation report
 
-Archivos almacenados en:
+Files are stored in:
 
-    s3://BUCKET_NAME/respuestas/
+    s3://BUCKET_NAME/responses/
     s3://BUCKET_NAME/pdfs/
 
-Ejemplo de estructura:
+Example structure:
 
-    respuestas/
-       procesado-20250101T100000Z.json
+    responses/
+       processed-20250101T100000Z.json
 
     pdfs/
-       evaluacion-20250101T100000Z.pdf
+       evaluation-20250101T100000Z.pdf
 
-Además el sistema envía automáticamente un **correo con el reporte PDF
-adjunto**.
+In addition, the system automatically sends an **email with the PDF
+report attached**.
 
 ------------------------------------------------------------------------
 
 # Observability
 
-Las ejecuciones de la Lambda generan logs automáticamente en:
+Lambda executions automatically generate logs in:
 
     CloudWatch Logs
     /aws/lambda/<function-name>
 
-Esto permite:
+This makes it possible to:
 
--   monitorear ejecuciones
--   detectar errores
--   analizar comportamiento del sistema
+-   Monitor executions
+-   Detect errors
+-   Analyze system behavior
 
 ------------------------------------------------------------------------
 
 # Security Considerations
 
-Este proyecto sigue buenas prácticas básicas de seguridad:
+This project follows basic security best practices:
 
--   uso de variables de entorno para evitar hardcoding
--   IAM roles para controlar acceso a servicios
--   logs centralizados en CloudWatch
+-   Use of environment variables to avoid hardcoding
+-   IAM roles to control access to services
+-   Centralized logs in CloudWatch
 
-En producción se recomienda:
+In production, it is recommended to:
 
--   restringir permisos IAM
--   habilitar autenticación en API Gateway
--   usar AWS Secrets Manager para credenciales sensibles
+-   Restrict IAM permissions
+-   Enable authentication in API Gateway
+-   Use AWS Secrets Manager for sensitive credentials
 
 ------------------------------------------------------------------------
 
 # Infrastructure as Code
 
-La infraestructura se define usando **AWS SAM**, basado en
+The infrastructure is defined using **AWS SAM**, based on
 **CloudFormation**.
 
-Esto permite:
+This enables:
 
--   reproducibilidad del sistema
--   despliegue automatizado
--   versionado de infraestructura
+-   System reproducibility
+-   Automated deployment
+-   Infrastructure versioning
 
-Archivo principal:
+Main file:
 
     template.yaml
 
@@ -285,7 +280,7 @@ Archivo principal:
 
 # Local Testing (Optional)
 
-Puedes probar la Lambda localmente usando Docker:
+You can test the Lambda locally using Docker:
 
     sam local invoke -e event.json
 
@@ -293,31 +288,31 @@ Puedes probar la Lambda localmente usando Docker:
 
 # Cost Considerations
 
-Este proyecto está diseñado para funcionar dentro del **AWS Free Tier**
-para entornos de prueba.
+This project is designed to run within the **AWS Free Tier** for test
+environments.
 
-Costos principales:
+Main costs:
 
 -   Lambda invocations
--   almacenamiento en S3
--   envío de correos en SES
+-   S3 storage
+-   SES email sending
 
-Para cargas pequeñas el costo es prácticamente cero.
+For small workloads, the cost is practically zero.
 
 ------------------------------------------------------------------------
 
 # Future Improvements
 
-Posibles mejoras:
+Possible improvements:
 
--   usar SQS para desacoplar procesamiento
--   agregar DynamoDB para historial de evaluaciones
--   crear dashboard analítico con Athena o QuickSight
--   usar EventBridge para orquestación
--   implementar autenticación en API Gateway
+-   Use SQS to decouple processing
+-   Add DynamoDB for evaluation history
+-   Create an analytics dashboard with Athena or QuickSight
+-   Use EventBridge for orchestration
+-   Implement authentication in API Gateway
 
 ------------------------------------------------------------------------
 
 # License
 
-Proyecto de ejemplo con fines educativos.
+Sample project for educational purposes.
