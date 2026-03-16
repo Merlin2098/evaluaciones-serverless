@@ -5,37 +5,39 @@
 ![SAM](https://img.shields.io/badge/AWS%20SAM-Infrastructure%20as%20Code-green)
 ![License](https://img.shields.io/badge/license-Educational-lightgrey)
 
-**Serverless** system for processing evaluations submitted from
-**Typeform**, automatically generating a **PDF report**, storing it in
-**Amazon S3**, and sending it by **email using Amazon SES**.
+Serverless workflow for processing evaluations submitted via **Typeform webhooks**.
 
-All infrastructure is defined as **Infrastructure as Code** using
-**AWS SAM / CloudFormation**.
+The system automatically generates a **PDF report**, stores the results in
+**Amazon S3**, and sends the report via **Amazon SES**.
 
-------------------------------------------------------------------------
+All infrastructure is defined as **Infrastructure as Code using AWS SAM
+(CloudFormation)**.
+
+---
 
 # Features
 
--   Serverless architecture
--   Automatic evaluation processing
--   Automatic PDF generation
--   Storage in Amazon S3
--   Automatic email sending with Amazon SES
--   Infrastructure defined as code (IaC)
+- Serverless event-driven architecture
+- Webhook-based evaluation processing
+- Automatic PDF report generation
+- Artifact storage in Amazon S3
+- Automated email delivery using Amazon SES
+- Infrastructure defined as code using AWS SAM
 
-------------------------------------------------------------------------
+---
 
 # Technologies
 
--   AWS Lambda
--   Amazon API Gateway
--   Amazon S3
--   Amazon SES
--   AWS SAM
--   Python 3.11
--   ReportLab
+- Amazon API Gateway
+- AWS Lambda
+- Amazon S3
+- Amazon SES
+- Amazon CloudWatch Logs
+- AWS SAM (CloudFormation)
+- Python 3.11
+- ReportLab
 
-------------------------------------------------------------------------
+---
 
 # Why this project exists
 
@@ -44,20 +46,41 @@ processing data from webhooks**.
 
 Goals:
 
--   Automate evaluations submitted from forms
--   Automatically generate PDF reports
--   Store structured results
--   Send reports automatically by email
+- Automate evaluations submitted from forms
+- Automatically generate PDF reports
+- Store structured results
+- Send reports automatically by email
 
 This pattern is commonly used in integrations with:
 
--   Typeform
--   Stripe
--   Slack
--   GitHub Webhooks
--   Shopify
+- Typeform
+- Stripe
+- Slack
+- GitHub Webhooks
+- Shopify
 
-------------------------------------------------------------------------
+---
+
+
+# Example Use Case
+
+Imagine a company collecting structured evaluations through an online form.
+
+Each time a user submits the form:
+
+1. The form platform sends a webhook event.
+2. The system processes the responses automatically.
+3. A PDF evaluation report is generated.
+4. The report is stored in Amazon S3.
+5. The report is emailed to the recipient.
+
+This eliminates manual processing and allows evaluations to be generated
+and delivered automatically.
+
+The same architecture pattern can be used for other webhook-driven workflows,
+such as payment notifications, order processing, or automated report generation.
+
+---
 
 # Architecture
 
@@ -68,60 +91,50 @@ The system uses a simple and scalable serverless architecture.
 Flow:
 
 Typeform Webhook
--> API Gateway (POST /evaluation)
--> AWS Lambda (Python)
--> PDF Generation (ReportLab)
--> Amazon S3 (result storage)
--> Amazon SES (automatic email delivery)
+→ API Gateway (POST /evaluation)
+→ AWS Lambda (Python)
+→ PDF Generation (ReportLab)
+→ Amazon S3 (result storage)
+→ Amazon SES (email delivery)
 
 AWS services used:
 
--   AWS Lambda
--   Amazon API Gateway
--   Amazon S3
--   Amazon SES
--   Amazon CloudWatch Logs
--   Lambda Layers
--   AWS SAM / CloudFormation
+- AWS Lambda
+- Amazon API Gateway
+- Amazon S3
+- Amazon SES
+- Amazon CloudWatch Logs
+- Lambda Layers
+- AWS SAM / CloudFormation
 
-------------------------------------------------------------------------
+---
 
 # Project Structure
 
-    evaluations-serverless/
-    |
-    |-- lambda/
-    |   `-- app.py
-    |
-    |-- layer/
-    |   `-- dependencies.zip
-    |
-    |-- template.yaml
-    |
-    |-- architecture.png
-    |
-    `-- README.md
+evaluations-serverless/
+│
+├── lambda/
+│   └── app.py
+│
+├── layer/
+│   └── dependencies.zip
+│
+├── template.yaml
+├── architecture.png
+└── README.md
 
-  Folder             Description
-  ------------------ ----------------------------------------------------
-  lambda             Lambda function code
-  layer              Python dependencies packaged as a Lambda Layer
-  template.yaml      serverless infrastructure definition
-  architecture.png   architecture diagram
-  README.md          project documentation
-
-------------------------------------------------------------------------
+---
 
 # Requirements
 
 Before deploying the system, you need:
 
--   An AWS account
--   AWS CLI configured
--   AWS SAM CLI installed
--   Python 3.11
--   An existing S3 bucket
--   SES configured (verified email or domain)
+- An AWS account
+- AWS CLI configured
+- AWS SAM CLI installed
+- Python 3.11
+- An existing S3 bucket
+- SES configured (verified email or domain)
 
 Install SAM CLI:
 
@@ -131,20 +144,20 @@ Verify installation:
 
     sam --version
 
-------------------------------------------------------------------------
+---
 
 # Environment Variables
 
 The Lambda function uses environment variables to avoid **hardcoding
 infrastructure values**.
 
-  Variable         Description
-  ---------------- ---------------------------------------
-  BUCKET_NAME      S3 bucket where results are stored
-  CLIENTE_EMAIL    report recipient
-  FROM_EMAIL       sender email
-  SES_REGION       SES region
-  SES_CONFIG_SET   SES configuration set
+| Variable       | Description                        |
+| -------------- | ---------------------------------- |
+| BUCKET_NAME    | S3 bucket where results are stored |
+| CLIENTE_EMAIL  | Report recipient                   |
+| FROM_EMAIL     | Sender email                       |
+| SES_REGION     | SES region                         |
+| SES_CONFIG_SET | SES configuration set              |
 
 Example:
 
@@ -154,7 +167,7 @@ Example:
     SES_REGION=us-east-1
     SES_CONFIG_SET=email-debug
 
-------------------------------------------------------------------------
+---
 
 # Quick Start
 
@@ -169,9 +182,9 @@ Example:
 
 This prepares:
 
--   Lambda code
--   Layer
--   CloudFormation template
+- Lambda code
+- Layer
+- CloudFormation template
 
 ## 3. Deploy the infrastructure
 
@@ -179,19 +192,19 @@ This prepares:
 
 During deployment AWS will ask for:
 
--   Stack name
--   Region
--   Bucket for artifacts
--   IAM permission confirmation
+- Stack name
+- Region
+- Bucket for artifacts
+- IAM permission confirmation
 
 SAM will automatically create:
 
--   Lambda
--   API Gateway
--   Permissions
--   Webhook integration
+- Lambda
+- API Gateway
+- Permissions
+- Webhook integration
 
-------------------------------------------------------------------------
+---
 
 # Configure the Typeform Webhook
 
@@ -203,14 +216,14 @@ Configure that endpoint as a **webhook in Typeform**.
 
 Each form submission will trigger the Lambda.
 
-------------------------------------------------------------------------
+---
 
 # Generated Output
 
 Each evaluation produces:
 
-1.  JSON with processed responses\
-2.  PDF with the evaluation report
+1. JSON with processed responses\
+2. PDF with the evaluation report
 
 Files are stored in:
 
@@ -228,38 +241,37 @@ Example structure:
 In addition, the system automatically sends an **email with the PDF
 report attached**.
 
-------------------------------------------------------------------------
+---
 
 # Observability
 
-Lambda executions automatically generate logs in:
+Lambda executions generate logs automatically in **Amazon CloudWatch Logs**:
 
-    CloudWatch Logs
-    /aws/lambda/<function-name>
+/aws/lambda/`<function-name>`
 
 This makes it possible to:
 
--   Monitor executions
--   Detect errors
--   Analyze system behavior
+- Monitor executions
+- Detect errors
+- Analyze system behavior
 
-------------------------------------------------------------------------
+---
 
 # Security Considerations
 
 This project follows basic security best practices:
 
--   Use of environment variables to avoid hardcoding
--   IAM roles to control access to services
--   Centralized logs in CloudWatch
+- Environment variables to avoid hardcoded values
+- IAM roles to restrict service access
+- Centralized logging in CloudWatch
 
 In production, it is recommended to:
 
--   Restrict IAM permissions
--   Enable authentication in API Gateway
--   Use AWS Secrets Manager for sensitive credentials
+- Restrict IAM permissions
+- Enable authentication in API Gateway
+- Use AWS Secrets Manager for sensitive credentials
 
-------------------------------------------------------------------------
+---
 
 # Infrastructure as Code
 
@@ -268,15 +280,15 @@ The infrastructure is defined using **AWS SAM**, based on
 
 This enables:
 
--   System reproducibility
--   Automated deployment
--   Infrastructure versioning
+- System reproducibility
+- Automated deployment
+- Infrastructure versioning
 
 Main file:
 
     template.yaml
 
-------------------------------------------------------------------------
+---
 
 # Local Testing (Optional)
 
@@ -284,7 +296,7 @@ You can test the Lambda locally using Docker:
 
     sam local invoke -e event.json
 
-------------------------------------------------------------------------
+---
 
 # Cost Considerations
 
@@ -293,25 +305,52 @@ environments.
 
 Main costs:
 
--   Lambda invocations
--   S3 storage
--   SES email sending
+- Lambda invocations
+- S3 storage
+- SES email sending
 
 For small workloads, the cost is practically zero.
 
-------------------------------------------------------------------------
+---
+
+# What I Learned
+
+Building this project helped me understand:
+
+- Designing event-driven serverless workflows
+- Integrating external services via webhooks
+- Using AWS SAM for infrastructure as code
+- Managing Lambda dependencies using layers
+- Storing generated artifacts in Amazon S3
+- Sending automated notifications using Amazon SES
+- Observing system behavior through CloudWatch logs
+
+---
 
 # Future Improvements
 
 Possible improvements:
 
--   Use SQS to decouple processing
--   Add DynamoDB for evaluation history
--   Create an analytics dashboard with Athena or QuickSight
--   Use EventBridge for orchestration
--   Implement authentication in API Gateway
+- **Introduce Amazon SQS and split the Lambda into ingestion and processing stages**
 
-------------------------------------------------------------------------
+  Currently, a single Lambda function handles the full workflow: receiving
+  the webhook payload, generating the PDF report, storing results in S3,
+  and sending the email via SES.
+
+  A future improvement would introduce **Amazon SQS** to decouple ingestion
+  from processing. The architecture would evolve into two Lambda functions:
+
+  - **Ingestion Lambda**: receives the webhook via API Gateway and pushes the
+    event to an SQS queue.
+  - **Processing Lambda**: triggered by SQS to generate the PDF report,
+    store results in S3, and send the email via SES.
+
+  This pattern improves reliability, allows retries, and enables the system
+  to better handle bursts of webhook traffic.
+- Add DynamoDB for evaluation history
+- Create an analytics dashboard with Athena or QuickSight
+- Use EventBridge for orchestration
+- Implement authentication in API Gateway
 
 # License
 
