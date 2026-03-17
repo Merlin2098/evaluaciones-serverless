@@ -117,19 +117,32 @@ Sistema de Evaluación Automatizado
 
     msg.attach(adjunto)
 
-    ses.send_raw_email(
-        Source=remitente,
-        Destinations=[destinatario],
-        RawMessage={"Data": msg.as_string()},
-        SES_CONFIG_SET = os.getenv("SES_CONFIG_SET")
-    )
+    params = {
+        "Source": remitente,
+        "Destinations": [destinatario],
+        "RawMessage": {"Data": msg.as_string()},
+    }
+
+    config_set = os.getenv("SES_CONFIG_SET")
+    if config_set:
+        params["ConfigurationSetName"] = config_set
+
+    ses.send_raw_email(**params)
 
 
 def lambda_handler(event, context):
-    body = json.loads(event["body"])
-    form_response = body["form_response"]
-    answers = form_response["answers"]
+    try:
+        if "body" in event and event["body"]:
+            body = json.loads(event["body"])
+        else:
+            body = event
 
+        form_response = body.get("form_response", {})
+        answers = form_response.get("answers", [])
+
+    except Exception as e:
+        print("ERROR parsing event:", str(e))
+        raise
     nombre = None
     email = None
     competencias = {}
